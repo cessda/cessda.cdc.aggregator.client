@@ -8,6 +8,7 @@ from kuha_common import conf
 import kuha_client
 from cdcagg_common.records import Study
 from cdcagg_common.mappings import (
+    DDI122NesstarRecordParser,
     DDI25RecordParser,
     DDI31RecordParser
 )
@@ -35,12 +36,22 @@ class StudyMethods(kuha_client.CollectionMethods):
     async def update_record(self, new, old):
         new_dict = new.export_dict(include_provenance=False, include_metadata=False, include_id=False)
         old_dict = old.export_dict(include_provenance=False, include_metadata=False, include_id=False)
-        if new_dict == old_dict:
+        if new_dict != old_dict:
+            # Records differ. Send new record to docstore
+            new_dict.update(new.export_provenance_dict())
+            await kuha_client.send_update_record_request(new.get_collection(),
+                                                         new_dict, old.get_id())
+        elif await self._update_metadata_if_deleted(old) is True:
+            # Records match, but old record is deleted. Update metadata to docstore.
+            await kuha_client.send_update_record_request(new.get_collection(),
+                                                         old.export_dict(include_provenance=True,
+                                                                         include_metadata=True,
+                                                                         include_id=False),
+                                                         old.get_id())
+        else:
             # Records match. No need to update.
             return False
-        new_dict.update(new.export_provenance_dict())
-        return await kuha_client.send_update_record_request(new.get_collection(),
-                                                            new_dict, old.get_id())
+        return True
 
 
 def configure():
@@ -60,14 +71,14 @@ def configure():
 def cli():
     settings = configure()
     remove_absent = settings.no_remove is False
-    parsers = [DDI25RecordParser, DDI31RecordParser]
+    parsers = [DDI122NesstarRecordParser, DDI25RecordParser, DDI31RecordParser]
     collections_methods = [StudyMethods]
     if settings.file_cache:
         with kuha_client.open_file_logging_cache(settings.file_cache) as cache:
-            proc = kuha_client.BatchProcessor(parsers, collections_methods, cache)
+            proc = kuha_client.BatchProcessor(collections_methods, parsers=parsers, cache=cache)
             proc.upsert_run(settings.paths, remove_absent=remove_absent)
         return 0
-    proc = kuha_client.BatchProcessor(parsers, collections_methods)
+    proc = kuha_client.BatchProcessor(collections_methods, parsers=parsers)
     proc.upsert_run(settings.paths, remove_absent=remove_absent)
 
 
