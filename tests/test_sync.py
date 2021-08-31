@@ -208,7 +208,7 @@ class TestIntegration(KuhaUnitTestCase):
         self.assertEqual(len(cargs), 2)
         coll, rec_dict = cargs
         self.assertEqual(coll, Study.get_collection())
-        self.assertEqual(rec_dict['study_number'], 'study_1')
+        self.assertEqual(rec_dict['identifiers'][0]['identifier'], 'study_1')
         self.assertEqual(rec_dict['study_titles'][0]['study_title'], 'some study')
 
     def test_minimal_ddi122_updates(self):
@@ -230,7 +230,7 @@ class TestIntegration(KuhaUnitTestCase):
         self.assertEqual(len(cargs), 3)
         coll, rec_dict, rec_id = cargs
         self.assertEqual(coll, Study.get_collection())
-        self.assertEqual(rec_dict['study_number'], 'study_1')
+        self.assertEqual(rec_dict['identifiers'][0]['identifier'], 'study_1')
         self.assertEqual(rec_dict['study_titles'][0]['study_title'], 'some study')
         self.assertEqual(rec_id, 'some_id')
 
@@ -279,7 +279,7 @@ class TestIntegration(KuhaUnitTestCase):
             self.assertEqual(len(cargs), 3)
             coll, rec_dict, rec_id = cargs
             self.assertEqual(coll, Study.get_collection())
-            self.assertEqual(rec_dict['study_number'], 'study_1')
+            self.assertEqual(rec_dict['identifiers'][0]['identifier'], 'study_1')
             self.assertEqual(rec_dict['study_titles'][0]['study_title'], 'some study')
             self.assertEqual(rec_id, 'some_id')
             # SECOND CALL
