@@ -13,4 +13,37 @@
 [![Technical Debt](https://sonarqube.cessda.eu/api/project_badges/measure?project=cessda.cdc.aggregator.client&metric=sqale_index)](https://sonarqube.cessda.eu/dashboard?id=cessda.cdc.aggregator.client)
 [![Vulnerabilities](https://sonarqube.cessda.eu/api/project_badges/measure?project=cessda.cdc.aggregator.client&metric=vulnerabilities)](https://sonarqube.cessda.eu/dashboard?id=cessda.cdc.aggregator.client)
 
-Work in progress
+Command line client for synchronizing records to CESSDA CDC Aggregator
+DocStore. This program is part of CESSDA CDC Aggregator.
+
+## Installation ##
+
+```sh
+python3 -m venv cdcagg-env
+source cdcagg-env/bin/activate
+cd cessda.cdc.aggregator.client
+pip install -r requirements.txt
+pip install .
+```
+
+
+## Run ##
+
+Change <docstore-url> to CDC Aggregator DocStore server URL. Change
+<xml-sources> to a path pointing to a folder containing files to
+synchronize.
+
+```sh
+python -m cdcagg_client.sync --document-store-url <docstore-url> --file-cache file_cache.pickle <xml-sources>
+```
+
+## Configuration reference ##
+
+```sh
+python -m cdcagg_client.sync --help
+```
+
+
+## License ##
+
+See the [LICENSE](LICENSE.txt) file.
