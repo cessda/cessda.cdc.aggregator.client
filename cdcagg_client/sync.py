@@ -110,10 +110,18 @@ def configure():
     conf.load('cdcagg_client.sync', package='cdcagg_client', env_var_prefix='CDCAGG_')
     conf.add_print_arg()
     conf.add_config_arg()
-    conf.add('--no-remove', action='store_true', help="Don't remove records that were not found in this batch.")
-    conf.add('--file-cache', type=str, help='Path to a cache file. Leave unset to not use file caching.')
+    conf.add('--file-cache', type=str, env_var='FILE_CACHE',
+             help='Path to a cache file. Leave unset to not use file caching.')
+    conf.add('--no-remove', action='store_true', env_var='NO_REMOVE',
+             help="Don't remove records that were not found in this batch.")
+    conf.add('--fail-on-parse', action='store_true', env_var='FAIL_ON_PARSE',
+             help="Stop processing a batch when a file cannot be properly parsed. "
+             "Enabling this option makes the synchronization process less fault tolerant. "
+             "Note that if a file is not parsed properly it's records are not stored "
+             "correctly and the database content will not reflect the batch of files "
+             "that were being processed.")
     conf.add('paths', nargs='+', help="Paths to files to synchronize. If path points to a folder, it and its "
-             "subfolder will be searched for '.xml'-suffixed files")
+             "subfolders will be searched for '.xml'-suffixed files")
     settings = cli_setup.setup_common_modules(cli_setup.MOD_DS_CLIENT,
                                               cli_setup.MOD_LOGGING,
                                               cli_setup.MOD_DS_QUERY)
@@ -132,10 +140,15 @@ def run(settings):
     collections_methods = [StudyMethods]
     if settings.file_cache:
         with kuha_client.open_file_logging_cache(settings.file_cache) as cache:
-            proc = kuha_client.BatchProcessor(collections_methods, parsers=parsers, cache=cache)
+            proc = kuha_client.BatchProcessor(collections_methods,
+                                              parsers=parsers,
+                                              cache=cache,
+                                              fail_on_parse=settings.fail_on_parse)
             proc.upsert_run(settings.paths, remove_absent=remove_absent)
         return
-    proc = kuha_client.BatchProcessor(collections_methods, parsers=parsers)
+    proc = kuha_client.BatchProcessor(collections_methods,
+                                      parsers=parsers,
+                                      fail_on_parse=settings.fail_on_parse)
     proc.upsert_run(settings.paths, remove_absent=remove_absent)
 
 

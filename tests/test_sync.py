@@ -41,7 +41,8 @@ def settings(paths, no_remove=False, file_cache='', **kw):
     return Namespace(paths=paths,
                      no_remove=no_remove,
                      file_cache=file_cache,
-                     print_configuration=kw.get('print_configuration', False))
+                     print_configuration=kw.get('print_configuration', False),
+                     fail_on_parse=kw.get('fail_on_parse', False))
 
 
 class TestConfigure(KuhaUnitTestCase):
@@ -69,13 +70,19 @@ class TestConfigure(KuhaUnitTestCase):
     def test_calls_conf_add_correctly(self):
         sync.configure()
         self._mock_conf.add.assert_has_calls([
-            mock.call('--no-remove', action='store_true',
-                      help="Don't remove records that were not found in this batch."),
-            mock.call('--file-cache', type=str,
+            mock.call('--file-cache', type=str, env_var='FILE_CACHE',
                       help='Path to a cache file. Leave unset to not use file caching.'),
+            mock.call('--no-remove', action='store_true', env_var='NO_REMOVE',
+                      help="Don't remove records that were not found in this batch."),
+            mock.call('--fail-on-parse', action='store_true', env_var='FAIL_ON_PARSE',
+                      help="Stop processing a batch when a file cannot be properly parsed. "
+                      "Enabling this option makes the synchronization process less fault "
+                      "tolerant. Note that if a file is not parsed properly it's records "
+                      "are not stored correctly and the database content will not reflect "
+                      "the batch of files that were being processed."),
             mock.call('paths', nargs='+',
                       help="Paths to files to synchronize. If path points to a folder, "
-                      "it and its subfolder will be searched for '.xml'-suffixed files")])
+                      "it and its subfolders will be searched for '.xml'-suffixed files")])
 
     def test_calls_cli_setup_setup_common_modules(self):
         sync.configure()
@@ -176,6 +183,35 @@ class TestCli(KuhaUnitTestCase):
         with self.assertRaises(ValueError):
             sync.cli()
         mock_logger.exception.assert_called_once_with('Unhandled exception')
+
+    @mock.patch.object(sync.kuha_client, 'BatchProcessor')
+    @mock.patch.object(sync, 'configure', return_value=settings(['/some/path']))
+    def test_calls_BatchProcessor_with_default_args(self, mock_configure, mock_BatchProcessor):
+        sync.cli()
+        mock_BatchProcessor.assert_called_once_with([sync.StudyMethods],
+                                                    parsers=[sync.DDI122NesstarRecordParser,
+                                                             sync.DDI25RecordParser,
+                                                             sync.DDI31RecordParser],
+                                                    fail_on_parse=False)
+        mock_BatchProcessor.return_value.upsert_run.assert_called_once_with(['/some/path'], remove_absent=True)
+
+    @mock.patch.object(sync.kuha_client, 'FileLoggingCache')
+    @mock.patch.object(sync.kuha_client, 'BatchProcessor')
+    @mock.patch.object(sync, 'configure', return_value=settings(['/some/path'],
+                                                                no_remove=True,
+                                                                file_cache='/path/to/filecache',
+                                                                fail_on_parse=True))
+    def test_calls_BatchProcessor_with_altered_args(self, mock_configure, mock_BatchProcessor,
+                                                    mock_FileLoggingCache):
+        sync.cli()
+        mock_FileLoggingCache.assert_called_once_with('/path/to/filecache')
+        mock_BatchProcessor.assert_called_once_with([sync.StudyMethods],
+                                                    parsers=[sync.DDI122NesstarRecordParser,
+                                                             sync.DDI25RecordParser,
+                                                             sync.DDI31RecordParser],
+                                                    cache=mock_FileLoggingCache.return_value,
+                                                    fail_on_parse=True)
+        mock_BatchProcessor.return_value.upsert_run.assert_called_once_with(['/some/path'], remove_absent=False)
 
 
 class TestIntegration(KuhaUnitTestCase):
@@ -302,3 +338,34 @@ class TestIntegration(KuhaUnitTestCase):
             # ASSERT
             self._mock_send_update_record_request.assert_not_called()
             self._mock_query_single.assert_not_called()
+
+    def test_batch_with_invalid_ddi_does_not_raise(self):
+        """Test against #11 at Bitbucket"""
+        self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml'),
+                                                      _testdata_path('invalid_ddi25.xml')])
+        # If the following does not raise we're good.
+        sync.cli()
+
+    def test_batch_with_invalid_ddi_creates(self):
+        """Test against #11 at Bitbucket"""
+        self._mock_query_single.return_value = None
+        self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml'),
+                                                      _testdata_path('invalid_ddi25.xml')])
+        calls = self._mock_send_create_record_request.call_args_list
+        sync.cli()
+        self.assertEqual(len(calls), 1)
+        cargs, ckwargs = calls.pop()
+        self.assertEqual(ckwargs, {})
+        self.assertEqual(len(cargs), 2)
+        coll, rec_dict = cargs
+        self.assertEqual(coll, Study.get_collection())
+        self.assertEqual(rec_dict['identifiers'][0]['identifier'], 'study_1')
+        self.assertEqual(rec_dict['study_titles'][0]['study_title'], 'some study')
+
+    @mock.patch.object(sync.kuha_client._logger, 'exception')
+    def test_batch_with_invalid_ddi_logs_exception(self, mock_exception):
+        """Test against #11 at Bitbucket"""
+        inv_path = _testdata_path('invalid_ddi25.xml')
+        self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml'), inv_path])
+        sync.cli()
+        mock_exception.assert_called_once_with("Unable to parse file '%s'. Is the file valid?", inv_path)

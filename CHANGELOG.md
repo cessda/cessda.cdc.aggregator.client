@@ -18,6 +18,23 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ### Security
 
+
+## 0.2.0 - unreleased
+
+### Added
+
+- Sync entrypoint configuration option `--fail-on-parse` to
+  make the processing fail out on errors during file parsing.
+
+### Changed
+
+- Default behaviour now is to skip files that cannot be parsed
+  because of a MappingError. Other errors still lead to failures
+  that terminate the processing. The behaviour can be controlled
+  with `--fail-on-parse` configuration option.
+  (Fixes [#11](https://bitbucket.org/cessda/cessda.cdc.aggregator.client/issues/11))
+
+
 ## 0.1.0 - 2021-09-21
 
 ### Added

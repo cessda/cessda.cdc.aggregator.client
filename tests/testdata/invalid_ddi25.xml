@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2021-03-18T08:07:43Z</responseDate>
+  <request metadataPrefix="ddi_c" identifier="oai:fsd.uta.fi:some_id" verb="GetRecord">http://services.fsd.tuni.fi/v0/oai</request>
+  <GetRecord>
+    <record>
+      <header>
+        <identifier>oai:fsd.uta.fi:some_id</identifier>
+        <datestamp>2020-07-15T23:00:29Z</datestamp>
+        <setSpec>language:fi</setSpec><setSpec>language:en</setSpec><setSpec>data_kind:Quantitative</setSpec><setSpec>data_kind:Kvantitatiivinen</setSpec><setSpec>study_groups:issp</setSpec>
+      </header>
+      <metadata>
+        <codeBook version="2.5" xmlns="ddi:codebook:2_5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="ddi:codebook:2_5 http://www.ddialliance.org/Specification/DDI-Codebook/2.5/XMLSchema/codebook.xsd">
+          <docDscr>
+            <citation>
+              <titlStmt/>
+              <prodStmt>
+              </prodStmt>
+            </citation>
+          </docDscr>
+          <stdyDscr>
+            <citation>
+              <titlStmt>
+                <titl xml:lang="en">study title</titl>
+                <IDNo>some_id</IDNo>
+              </titlStmt>
+            </citation>
+            <othrStdyMat>
+              <relPubl>
+                <citation></citation>
+              </relPubl>
+            </othrStdyMat>
+          </stdyDscr>
+        </codeBook>
+      </metadata>
+    </record>
+  </GetRecord>
+</OAI-PMH>
