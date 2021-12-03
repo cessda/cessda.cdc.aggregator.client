@@ -34,6 +34,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
   with `--fail-on-parse` configuration option.
   (Fixes [#11](https://bitbucket.org/cessda/cessda.cdc.aggregator.client/issues/11))
 
+### Fixed
+
+- Correct query for record with match in provenance information. This
+  query is used to find duplicate records. Now a record is considered a
+  duplicate if it has a matching item (baseUrl + identifier
+  -combination) in list of provenances. New record always overwrites
+  the old one.
+  (Fixes [#12](https://bitbucket.org/cessda/cessda.cdc.aggregator.client/issues/12))
+
 
 ## 0.1.0 - 2021-09-21
 

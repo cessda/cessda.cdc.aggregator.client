@@ -19,8 +19,8 @@ from kuha_common.testing.testcases import KuhaUnitTestCase
 from kuha_common.document_store.constants import (
     REC_STATUS_CREATED,
     REC_STATUS_DELETED,
-    MDB_AND,
-    MDB_NOT_EQUAL
+    MDB_NOT_EQUAL,
+    MDB_ELEM_MATCH
 )
 from kuha_common.cli_setup import (
     MOD_DS_CLIENT,
@@ -235,12 +235,11 @@ class TestIntegration(KuhaUnitTestCase):
         sync.cli()
         # Assert
         self._mock_query_single.assert_called_once_with(
-            Study, _filter={MDB_AND: [
-                {Study._provenance.attr_direct: True},
-                {Study._provenance.attr_identifier: 'oai:fsd.uta.fi:FSD0115'},
-                {Study._provenance.attr_base_url: 'http://services.fsd.tuni.fi/v0/oai'}
-            ]}
-        )
+            Study, _filter={
+                Study._provenance: {
+                    MDB_ELEM_MATCH: {
+                        Study._provenance.attr_base_url: 'http://services.fsd.tuni.fi/v0/oai',
+                        Study._provenance.attr_identifier: 'oai:fsd.uta.fi:FSD0115'}}})
 
     def test_minimal_ddi122_creates(self):
         self._mock_query_single.return_value = None
@@ -315,12 +314,11 @@ class TestIntegration(KuhaUnitTestCase):
             # FIRST CALL
             sync.cli()
             self._mock_query_single.assert_called_once_with(
-                Study, _filter={MDB_AND: [
-                    {Study._provenance.attr_direct: True},
-                    {Study._provenance.attr_identifier: 'oai:fsd.uta.fi:FSD0115'},
-                    {Study._provenance.attr_base_url: 'http://services.fsd.tuni.fi/v0/oai'}
-                ]}
-            )
+                Study, _filter={
+                    Study._provenance: {
+                        MDB_ELEM_MATCH: {
+                            Study._provenance.attr_base_url: 'http://services.fsd.tuni.fi/v0/oai',
+                            Study._provenance.attr_identifier: 'oai:fsd.uta.fi:FSD0115'}}})
             calls = self._mock_send_update_record_request.call_args_list
             self.assertEqual(len(calls), 1)
             cargs, ckwargs = calls.pop()
