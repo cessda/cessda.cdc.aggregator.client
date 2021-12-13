@@ -1,13 +1,14 @@
 # Indirect
-tornado==6.1
-ConfigArgParse==1.2.3
+tornado==6.1.0
+ConfigArgParse==1.5.3
 py12flogging==0.5.0
 
 # Direct
 
 # CDCAGG common
-git+https://${BBCREDS}@bitbucket.org/cessda/cessda.cdc.aggregator.shared-library@0.1.0#egg=cdcagg_common
+# TODO change to 0.2.0 once released.
+git+https://${BBCREDS}@bitbucket.org/cessda/cessda.cdc.aggregator.shared-library@995ddcdc0e219fb4660c169a5a1b9afe9f12763f#egg=cdcagg_common
 # Kuha Common
-git+https://bitbucket.org/tietoarkisto/kuha_common@4cd20b4c58731b96fe085b3ccb6cae9b62f8596d#egg=kuha_common
+git+https://bitbucket.org/tietoarkisto/kuha_common@8e7de1f16530decc356fee660255b60fcacaea23#egg=kuha_common
 # Kuha Client
-git+https://bitbucket.org/tietoarkisto/kuha_client@7d8603a4dac476daebc2882c895255c48444dc82#egg=kuha_client
+git+https://bitbucket.org/tietoarkisto/kuha_client@46ba0501e92f6db3475d721344f456627c01f459#egg=kuha_client

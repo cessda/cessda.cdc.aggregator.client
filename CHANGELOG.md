@@ -33,6 +33,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
   that terminate the processing. The behaviour can be controlled
   with `--fail-on-parse` configuration option.
   (Fixes [#11](https://bitbucket.org/cessda/cessda.cdc.aggregator.client/issues/11))
+- Update dependencies in requirements.txt
+
+  - ConfigArgParse 1.5.3
+  - Kuha Common to Git commit 8e7de1f16530decc356fee660255b60fcacaea23
+  - Kuha Client to Git commit 46ba0501e92f6db3475d721344f456627c01f459
+  - TODO Aggregator Shared Library 0.2.0
 
 ### Fixed
 
