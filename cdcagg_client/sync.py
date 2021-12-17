@@ -11,7 +11,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Synchronize records to CESSDA CDCAggregator Document Store"""
+"""Synchronize records to CESSDA Metadata Aggregator DocStore.
+
+This module provides an entry point used for syncronizing records
+found from XML files to the DocStore.
+
+Synchronization dedulicates records based on provenance
+information. If two records share the same baseUrl + identifier
+combination in one of their provenance items, they are considered to
+be the same record. In that case the new record always overwrites the
+old one.
+
+Deduplication is implemented in :class:`StudyMethods`.
+"""
 import sys
 import logging
 from kuha_common.query import QueryController
@@ -35,9 +47,9 @@ _logger = logging.getLogger(__name__)
 class StudyMethods(kuha_client.CollectionMethods):
     """Implement StudyMethods subclass of CollectionMethods
 
-    Implement methods query_record and query_distinct_ids that
+    Implement methods :meth:`query_record` and :meth:`query_distinct_ids` that
     are abstract in base class.
-    Override method update_record to correctly handle provenance info.
+    Override method :meth:`update_record` to correctly handle provenance info.
     """
 
     collection = Study.get_collection()
@@ -49,7 +61,14 @@ class StudyMethods(kuha_client.CollectionMethods):
         returns None, then the upsert() will never call
         update_record(), but will call create_record() instead.
 
-        :param :obj:`Study` record: Study to query for.
+        This query uses elemMatch to look for the identifier and
+        base_url from within the same provenance item. It loops
+        throught all provenance items of `record` to query for a
+        record with matching provenance base_url + identifier
+        combination. If a match is found, it is returned.
+
+        :param record: Study to query for.
+        :type record: :obj:`cdcagg_common.records.Study`
         :returns: Result of the query.
         :rtype: Instance of Study or None.
         """
@@ -88,8 +107,10 @@ class StudyMethods(kuha_client.CollectionMethods):
         Override :meth:`kuha_client.CollectionMethods.update_record`
         to handle provenance data correctly.
 
-        :param :obj:`Study` new: New record.
-        :param :obj:`Study` old: Old record.
+        :param new: New record.
+        :type new: :obj:`cdcagg_common.records.Study`
+        :param old: Old record.
+        :type old: :obj:`cdcagg_common.records.Study`
         :returns: False if record does not need updating.
         :rtype: bool
         """
@@ -179,7 +200,7 @@ def cli():
         run(settings)
     except KeyboardInterrupt:
         _logger.warning('Shutdown by CTRL + C', exc_info=True)
-    except:
+    except Exception:
         _logger.exception('Unhandled exception')
         raise
 
