@@ -4,7 +4,9 @@ All notable changes to the CDC Aggregator Client will be documented in this file
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## 0.2.0 - unreleased
+
+## 0.2.0 - 2021-12-17
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5779783.svg)](https://doi.org/10.5281/zenodo.5779783)
 
 ### Added
 
@@ -23,7 +25,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
   - ConfigArgParse 1.5.3
   - Kuha Common to Git commit 8e7de1f16530decc356fee660255b60fcacaea23
   - Kuha Client to Git commit 46ba0501e92f6db3475d721344f456627c01f459
-  - TODO Aggregator Shared Library 0.2.0
+  - Aggregator Shared Library 0.2.0
 
 ### Fixed
 
