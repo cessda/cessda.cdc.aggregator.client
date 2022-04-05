@@ -96,6 +96,8 @@ class TestConfigure(KuhaUnitTestCase):
 
 class TestStudyMethods(KuhaUnitTestCase):
 
+    maxDiff = None
+
     def setUp(self):
         super().setUp()
         self.studymeths = sync.StudyMethods(mock.Mock())
@@ -127,9 +129,9 @@ class TestStudyMethods(KuhaUnitTestCase):
         self._loop.run_until_complete(self.await_and_store_result(
             self.studymeths.update_record(new, old)))
         # Assert
-        mock_send.assert_called_once_with(
-            new.collection, new.export_dict(include_provenance=True, include_metadata=False, include_id=False),
-            'some-id')
+        new_rec_dict = new.export_dict(include_metadata=False, include_id=False)
+        new_rec_dict[Study._aggregator_identifier.path] = old._aggregator_identifier.get_value()
+        mock_send.assert_called_once_with(new.collection, new_rec_dict, 'some-id')
         self.assertEqual(self._stored_result, True)
 
     @mock.patch.object(sync.kuha_client, 'send_update_record_request')
@@ -152,6 +154,33 @@ class TestStudyMethods(KuhaUnitTestCase):
         # Assert
         mock_send.assert_called_once_with(new.collection, exp_dict, 'some-id')
         self.assertEqual(self._stored_result, True)
+
+    @mock.patch.object(sync.kuha_client, 'send_update_record_request')
+    def test_update_record_keeps_old_aggregator_identifier(self, mock_send):
+        """Updating an old record must not change the old record's _aggregator_identifier.
+
+        Tests fix for #19 at bitbucket.
+        """
+        old = Study()
+        old.add_study_number('study_1')
+        old.add_abstract('some abstract', 'en')
+        new = Study()
+        new.add_study_number('study_1')
+        new.add_abstract('another abstract', 'en')
+        self.assertNotEqual(old._aggregator_identifier.get_value,
+                            new._aggregator_identifier.get_value())
+        exp_rec_dict = new.export_dict(include_metadata=False, include_id=False)
+        exp_rec_dict[Study._aggregator_identifier.path] = old._aggregator_identifier.get_value()
+        self._loop.run_until_complete(self.await_and_store_result(
+            self.studymeths.update_record(new, old)))
+        calls = mock_send.call_args_list
+        self.assertEqual(len(calls), 1)
+        cargs, ckwargs = calls[0]
+        self.assertEqual(ckwargs, {})
+        carg_coll, carg_dict, carg_id = cargs
+        self.assertEqual(carg_coll, 'studies')
+        self.assertEqual(carg_dict, exp_rec_dict)
+        mock_send.assert_called_once_with(new.collection, exp_rec_dict, old.get_id())
 
 
 class TestCli(KuhaUnitTestCase):
@@ -339,6 +368,7 @@ class TestIntegration(KuhaUnitTestCase):
 
     def test_batch_with_invalid_ddi_does_not_raise(self):
         """Test against #11 at Bitbucket"""
+        self._mock_query_single.return_value = None
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml'),
                                                       _testdata_path('invalid_ddi25.xml')])
         # If the following does not raise we're good.
@@ -363,6 +393,7 @@ class TestIntegration(KuhaUnitTestCase):
     @mock.patch.object(sync.kuha_client._logger, 'exception')
     def test_batch_with_invalid_ddi_logs_exception(self, mock_exception):
         """Test against #11 at Bitbucket"""
+        self._mock_query_single.return_value = None
         inv_path = _testdata_path('invalid_ddi25.xml')
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml'), inv_path])
         sync.cli()

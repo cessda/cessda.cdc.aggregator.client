@@ -5,6 +5,20 @@ All notable changes to the CDC Aggregator Client will be documented in this file
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## 0.2.1 - 2022-04-05
+
+### Changed
+
+- Use 1.0.0 releases of Kuha Common and Kuha Client dependencies in
+  requirements.txt.
+
+### Fixed
+
+- Updating an existing record must not change the
+  `_aggregator_identifier` value.
+  (Fixes [#19](https://bitbucket.org/cessda/cessda.cdc.aggregator.client/issues/19))
+
+
 ## 0.2.0 - 2021-12-17
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5779783.svg)](https://doi.org/10.5281/zenodo.5779783)
 

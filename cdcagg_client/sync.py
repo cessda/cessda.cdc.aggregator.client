@@ -119,6 +119,12 @@ class StudyMethods(kuha_client.CollectionMethods):
         if new_dict != old_dict:
             # Records differ. Send new record to docstore
             new_dict.update(new.export_provenance_dict())
+            # Use old aggregator identifier.
+            # Disabling pylint protected access -rule for the next row.
+            # Attribute _aggregator_identifier is prefixed with a single
+            # underscore since it reflects the underlying payload schema.
+            # pylint: disable-next=protected-access
+            new_dict.update(old._aggregator_identifier.export_dict())
             await kuha_client.send_update_record_request(new.get_collection(),
                                                          new_dict, old.get_id())
         elif await self._update_metadata_if_deleted(old) is True:
