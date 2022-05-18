@@ -6,7 +6,7 @@ py12flogging==0.5.0
 # Direct
 
 # CDCAGG common
-git+https://bitbucket.org/cessda/cessda.cdc.aggregator.shared-library@0.2.0#egg=cdcagg_common
+git+https://bitbucket.org/cessda/cessda.cdc.aggregator.shared-library@0.3.0#egg=cdcagg_common
 # Kuha Common
 git+https://bitbucket.org/tietoarkisto/kuha_common@1.0.0#egg=kuha_common
 # Kuha Client

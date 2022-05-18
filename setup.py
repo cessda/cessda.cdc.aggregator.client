@@ -24,7 +24,7 @@ with open('VERSION', 'r') as file_obj:
 requires = [
     'kuha_common>=1.0.0',
     'kuha_client>=1.0.0',
-    'cdcagg_common>=0.1.0'
+    'cdcagg_common>=0.3.0'
 ]
 
 

@@ -398,3 +398,24 @@ class TestIntegration(KuhaUnitTestCase):
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml'), inv_path])
         sync.cli()
         mock_exception.assert_called_once_with("Unable to parse file '%s'. Is the file valid?", inv_path)
+
+    def test_aggregator_identifier_is_sha256(self):
+        """Test against #20 at Bitbucket"""
+        self._mock_query_single.return_value = None
+        self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml')])
+        # Call
+        sync.cli()
+        # Assert
+        calls = self._mock_send_create_record_request.call_args_list
+        self.assertEqual(len(calls), 1)
+        cargs, ckwargs = calls.pop()
+        self.assertEqual(ckwargs, {})
+        self.assertEqual(len(cargs), 2)
+        coll, rec_dict = cargs
+        self.assertEqual(coll, Study.get_collection())
+        # Aggregator identifier is generated manually by
+        # >>> from hashlib import sha256
+        # >>> sha256('http://services.fsd.tuni.fi/v0/oai-oai:fsd.uta.fi:FSD0115'.encode('utf8')).hexdigest()
+        # 'f4dd574f9da9fb6d64edbd63c873a29ee5c8fe68988a78c340915eace3c5ec74'
+        self.assertEqual(rec_dict['_aggregator_identifier'],
+                         'f4dd574f9da9fb6d64edbd63c873a29ee5c8fe68988a78c340915eace3c5ec74')
