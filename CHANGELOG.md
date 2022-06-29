@@ -5,6 +5,24 @@ All notable changes to the CDC Aggregator Client will be documented in this file
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## 0.4.0 - 2022-06-29
+
+### Added
+
+- Support reading DDI 3.3 for study level metadata.
+
+### Changed
+
+- Require Aggregator Shared Library 0.4.0 or newer at setup.py.
+- Require Kuha Common 1.1.0 or newer at setup.py.
+- Require Kuha Client 1.1.0 or newer at setup.py.
+- Update dependecies at requirements.txt
+
+  - Aggregator Shared Library 0.4.0
+  - Kuha Common 1.1.0
+  - Kuha Client 1.1.0
+
+
 ## 0.3.0 - 2022-05-18
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6577779.svg)](https://doi.org/10.5281/zenodo.6577779)
 

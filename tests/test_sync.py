@@ -220,7 +220,8 @@ class TestCli(KuhaUnitTestCase):
         mock_BatchProcessor.assert_called_once_with([sync.StudyMethods],
                                                     parsers=[sync.DDI122NesstarRecordParser,
                                                              sync.DDI25RecordParser,
-                                                             sync.DDI31RecordParser],
+                                                             sync.DDI31RecordParser,
+                                                             sync.DDI33RecordParser],
                                                     fail_on_parse=False)
         mock_BatchProcessor.return_value.upsert_run.assert_called_once_with(['/some/path'], remove_absent=True)
 
@@ -237,7 +238,8 @@ class TestCli(KuhaUnitTestCase):
         mock_BatchProcessor.assert_called_once_with([sync.StudyMethods],
                                                     parsers=[sync.DDI122NesstarRecordParser,
                                                              sync.DDI25RecordParser,
-                                                             sync.DDI31RecordParser],
+                                                             sync.DDI31RecordParser,
+                                                             sync.DDI33RecordParser],
                                                     cache=mock_FileLoggingCache.return_value,
                                                     fail_on_parse=True)
         mock_BatchProcessor.return_value.upsert_run.assert_called_once_with(['/some/path'], remove_absent=False)

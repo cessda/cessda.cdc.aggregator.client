@@ -37,7 +37,8 @@ from cdcagg_common.records import Study
 from cdcagg_common.mappings import (
     DDI122NesstarRecordParser,
     DDI25RecordParser,
-    DDI31RecordParser
+    DDI31RecordParser,
+    DDI33RecordParser
 )
 
 
@@ -175,7 +176,8 @@ def run(settings):
     :param :obj:`argparse.Namespace` settings: Use settings to run the program.
     """
     remove_absent = settings.no_remove is False
-    parsers = [DDI122NesstarRecordParser, DDI25RecordParser, DDI31RecordParser]
+    parsers = [DDI122NesstarRecordParser, DDI25RecordParser,
+               DDI31RecordParser, DDI33RecordParser]
     collections_methods = [StudyMethods]
     if settings.file_cache:
         with kuha_client.open_file_logging_cache(settings.file_cache) as cache:
