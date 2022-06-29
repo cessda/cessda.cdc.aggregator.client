@@ -9,7 +9,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ### Added
 
-- Support reading DDI 3.3 for study level metadata.
+- Support reading DDI 3.3 for study level metadata. (Implements
+  [#22](https://bitbucket.org/cessda/cessda.cdc.aggregator.client/issues/22))
 
 ### Changed
 

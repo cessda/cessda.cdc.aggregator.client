@@ -23,7 +23,7 @@ Source code is hosted at Bitbucket [https://bitbucket.org/cessda/cessda.cdc.aggr
 
   - Synchronize a folder of XML files recursively to DocStore.
   - Keep a file-cache to speed-up consecutive syncronization runs.
-  - Supports DDI 1.2.2, DDI 2.5 and DDI 3.1 XML files.
+  - Supports DDI 1.2.2, DDI 2.5, DDI 3.1 and DDI3.3 XML files.
 
 
 ## Requirements ##
