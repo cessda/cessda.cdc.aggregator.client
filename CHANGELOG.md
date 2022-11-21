@@ -5,6 +5,36 @@ All notable changes to the CDC Aggregator Client will be documented in this file
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## 0.5.0 - 2022-11-21
+
+### Added
+
+- Support grant and funding information and related publication
+  identifiers for studies. (Implements
+  [#23](https://bitbucket.org/cessda/cessda.cdc.aggregator.client/issues/23))
+
+### Changed
+
+- Update dependencies:
+
+  - Require Aggregator Shared Library 0.5.0 in requirements.txt and
+    setup.py.
+  - Require Kuha Common 2.0.1 in requirements.txt and setup.py.
+  - Require Kuha Client 1.2.1 in requirements.txt and setup.py.
+  - Require Tornado 6.2.0 in requirements.txt.
+
+### Fixed
+
+- Read DDI-Codebook XML from
+  ``/codeBook/stdyDscr/stdyInfo/sumDscr/anlyUnit/concept/@vocabURI``
+  and
+  ``/codeBook/stdyDscr/method/dataColl/collMode/concept/@vocabURI``
+  correctly.
+
+**Note:** After upgrade the file-cache should be removed to make sure
+all files are re-read and saved to Document Store.
+
+
 ## 0.4.0 - 2022-06-29
 
 ### Added

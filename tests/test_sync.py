@@ -108,7 +108,7 @@ class TestStudyMethods(KuhaUnitTestCase):
         old = Study()
         new = Study(old.export_dict())
         # Call
-        self._loop.run_until_complete(self.await_and_store_result(
+        self.run_until_complete(self.await_and_store_result(
             self.studymeths.update_record(new, old)))
         # assert
         mock_send.assert_not_called()
@@ -126,7 +126,7 @@ class TestStudyMethods(KuhaUnitTestCase):
         new.add_abstract('another abstract', 'en')
         new._provenance.add_value('some harvestdate')
         # Call
-        self._loop.run_until_complete(self.await_and_store_result(
+        self.run_until_complete(self.await_and_store_result(
             self.studymeths.update_record(new, old)))
         # Assert
         new_rec_dict = new.export_dict(include_metadata=False, include_id=False)
@@ -149,7 +149,7 @@ class TestStudyMethods(KuhaUnitTestCase):
         exp_dict['_metadata']['status'] = REC_STATUS_CREATED
         exp_dict['_metadata']['deleted'] = None
         # Call
-        self._loop.run_until_complete(self.await_and_store_result(
+        self.run_until_complete(self.await_and_store_result(
             self.studymeths.update_record(new, old)))
         # Assert
         mock_send.assert_called_once_with(new.collection, exp_dict, 'some-id')
@@ -171,7 +171,7 @@ class TestStudyMethods(KuhaUnitTestCase):
                             new._aggregator_identifier.get_value())
         exp_rec_dict = new.export_dict(include_metadata=False, include_id=False)
         exp_rec_dict[Study._aggregator_identifier.path] = old._aggregator_identifier.get_value()
-        self._loop.run_until_complete(self.await_and_store_result(
+        self.run_until_complete(self.await_and_store_result(
             self.studymeths.update_record(new, old)))
         calls = mock_send.call_args_list
         self.assertEqual(len(calls), 1)

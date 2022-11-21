@@ -1,13 +1,13 @@
 # Indirect
-tornado==6.1.0
+tornado==6.2.0
 ConfigArgParse==1.5.3
 py12flogging==0.5.0
 
 # Direct
 
 # CDCAGG common
-git+https://bitbucket.org/cessda/cessda.cdc.aggregator.shared-library@0.4.0#egg=cdcagg_common
+git+https://bitbucket.org/cessda/cessda.cdc.aggregator.shared-library@0.5.0#egg=cdcagg_common
 # Kuha Common
-git+https://bitbucket.org/tietoarkisto/kuha_common@1.1.0#egg=kuha_common
+git+https://bitbucket.org/tietoarkisto/kuha_common@2.0.1#egg=kuha_common
 # Kuha Client
-git+https://bitbucket.org/tietoarkisto/kuha_client@1.1.0#egg=kuha_client
+git+https://bitbucket.org/tietoarkisto/kuha_client@1.2.1#egg=kuha_client
