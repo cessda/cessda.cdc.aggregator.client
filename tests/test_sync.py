@@ -368,19 +368,19 @@ class TestIntegration(KuhaUnitTestCase):
             self._mock_send_update_record_request.assert_not_called()
             self._mock_query_single.assert_not_called()
 
-    def test_batch_with_invalid_ddi_does_not_raise(self):
+    def test_batch_with_unsupported_ddi_does_not_raise(self):
         """Test against #11 at Bitbucket"""
         self._mock_query_single.return_value = None
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml'),
-                                                      _testdata_path('invalid_ddi25.xml')])
+                                                      _testdata_path('unsupported_ddi33.xml')])
         # If the following does not raise we're good.
         sync.cli()
 
-    def test_batch_with_invalid_ddi_creates(self):
+    def test_batch_with_unsupported_ddi_creates(self):
         """Test against #11 at Bitbucket"""
         self._mock_query_single.return_value = None
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml'),
-                                                      _testdata_path('invalid_ddi25.xml')])
+                                                      _testdata_path('unsupported_ddi33.xml')])
         calls = self._mock_send_create_record_request.call_args_list
         sync.cli()
         self.assertEqual(len(calls), 1)
@@ -393,10 +393,10 @@ class TestIntegration(KuhaUnitTestCase):
         self.assertEqual(rec_dict['study_titles'][0]['study_title'], 'some study')
 
     @mock.patch.object(sync.kuha_client._logger, 'exception')
-    def test_batch_with_invalid_ddi_logs_exception(self, mock_exception):
+    def test_batch_with_unsupported_ddi_logs_exception(self, mock_exception):
         """Test against #11 at Bitbucket"""
         self._mock_query_single.return_value = None
-        inv_path = _testdata_path('invalid_ddi25.xml')
+        inv_path = _testdata_path('unsupported_ddi33.xml')
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml'), inv_path])
         sync.cli()
         mock_exception.assert_called_once_with("Unable to parse file '%s'. Is the file valid?", inv_path)
@@ -421,3 +421,30 @@ class TestIntegration(KuhaUnitTestCase):
         # 'f4dd574f9da9fb6d64edbd63c873a29ee5c8fe68988a78c340915eace3c5ec74'
         self.assertEqual(rec_dict['_aggregator_identifier'],
                          'f4dd574f9da9fb6d64edbd63c873a29ee5c8fe68988a78c340915eace3c5ec74')
+
+    def test_ddi25_with_no_titlstmt_titl_inside_relpubl_citation_creates_study_without_related_publications(self):
+        """Aggregator should be able to parse DDI25 without a valid relpubl structure
+
+        If relPubl has a citation but the citation has no
+        titlStmt/titl child, then no related publications should be
+        parsed.
+
+        See https://github.com/cessda/cessda.cdc.aggregator.client/issues/27
+        """
+        self._mock_query_single.return_value = None
+        self._mock_configure.return_value = settings([_testdata_path('no_relpubl_citation_titl_ddi25.xml')])
+        # Call
+        sync.cli()
+        # Assert
+        calls = self._mock_send_create_record_request.call_args_list
+        self.assertEqual(len(calls), 1)
+        cargs, ckwargs = calls.pop()
+        self.assertEqual(ckwargs, {})
+        self.assertEqual(len(cargs), 2)
+        coll, rec_dict = cargs
+        self.assertEqual(coll, Study.get_collection())
+        # Make sure no related publications are found
+        self.assertEqual(rec_dict['related_publications'], [])
+        # Make sure the study number is read as it should
+        self.assertEqual(rec_dict['study_number'],
+                         'http3A2F2Fservices.fsd.tuni.fi2Fv02Foai__oai3Afsd.uta.fi3AFSD0115')
