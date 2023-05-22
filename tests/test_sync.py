@@ -447,4 +447,4 @@ class TestIntegration(KuhaUnitTestCase):
         self.assertEqual(rec_dict['related_publications'], [])
         # Make sure the study number is read as it should
         self.assertEqual(rec_dict['study_number'],
-                         'http3A2F2Fservices.fsd.tuni.fi2Fv02Foai__oai3Afsd.uta.fi3AFSD0115')
+                         'http3A2F2Fservices.fsd.tuni.fi2Fv02Foai__oai3Afsd.uta.fi3Asome_id')

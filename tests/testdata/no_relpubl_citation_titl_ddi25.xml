@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
   <responseDate>2021-03-18T08:07:43Z</responseDate>
-  <request metadataPrefix="ddi_c" identifier="oai:fsd.uta.fi:FSD0115" verb="GetRecord">http://services.fsd.tuni.fi/v0/oai</request>
+  <request metadataPrefix="ddi_c" identifier="oai:fsd.uta.fi:some_id" verb="GetRecord">http://services.fsd.tuni.fi/v0/oai</request>
   <GetRecord>
     <record>
       <header>
-        <identifier>oai:fsd.uta.fi:FSD0115</identifier>
+        <identifier>oai:fsd.uta.fi:some_id</identifier>
         <datestamp>2020-07-15T23:00:29Z</datestamp>
         <setSpec>language:fi</setSpec><setSpec>language:en</setSpec><setSpec>data_kind:Quantitative</setSpec><setSpec>data_kind:Kvantitatiivinen</setSpec><setSpec>study_groups:issp</setSpec>
       </header>
