@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2021-03-18T08:07:43Z</responseDate>
+  <request metadataPrefix="ddi_c" identifier="oai:fsd.uta.fi:some_id" verb="GetRecord">http://services.fsd.tuni.fi/v0/oai</request>
+  <GetRecord>
+    <record>
+      <header>
+        <identifier>oai:fsd.uta.fi:some_id</identifier>
+        <datestamp>2020-07-15T23:00:29Z</datestamp>
+        <setSpec>language:fi</setSpec><setSpec>language:en</setSpec><setSpec>data_kind:Quantitative</setSpec><setSpec>data_kind:Kvantitatiivinen</setSpec><setSpec>study_groups:issp</setSpec>
+      </header>
+      <metadata>
+        <ddi:DDIInstance xmlns:ddi="ddi:instance:3_3"
+                     xmlns:s="ddi:studyunit:3_3"
+                     xmlns:pd="ddi:physicaldataproduct:3_3"
+                     xmlns:pi="ddi:physicalinstance:3_3"
+                     xmlns:c="ddi:conceptualcomponent:3_3"
+                     xmlns:l="ddi:logicalproduct:3_3"
+                     xmlns:r="ddi:reusable:3_3"
+                     xmlns:dc="ddi:datacollection:3_3"
+                     xmlns:a="ddi:archive:3_3"
+                     xmlns:g="ddi:group:3_3"
+                     xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:schemaLocation="ddi:instance:3_1 http://www.ddialliance.org/Specification/DDI-Lifecycle/3.3/XMLSchema/instance.xsd">
+          <r:URN>urn:ddi:some.example:ddi_metadata:1</r:URN>
+          <!-- No study units, thus unsupported file -->
+        </ddi:DDIInstance>
+      </metadata>
+    </record>
+  </GetRecord>
+</OAI-PMH>
