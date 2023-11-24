@@ -5,6 +5,20 @@ All notable changes to the CDC Aggregator Client will be documented in this file
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## 0.7.0 - 2023-11-24
+
+### Added
+
+- Support `Study._direct_base_url`. (Implements
+  [#33](https://github.com/cessda/cessda.cdc.aggregator.client/issues/33))
+
+
+### Changed
+
+- Update dependencies: Require Aggregator Shared Library 0.6.0 in
+  requirements.txt and setup.py.
+
+
 ## 0.6.0 - 2023-05-24
 
 ### Changed
