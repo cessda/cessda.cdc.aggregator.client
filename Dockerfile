@@ -53,7 +53,7 @@
 #     cdcagg-client
 #
 
-FROM python:3.9-slim as builder
+FROM python:3.11-slim as builder
 
 COPY . /docker-build
 WORKDIR /docker-build
@@ -73,7 +73,7 @@ RUN --mount=type=secret,id=bbcreds \
 # END FIRST STAGE
 
 
-FROM python:3.9-slim as prod
+FROM python:3.11-slim as prod
 
 # Copy build packages from builder image to prod.
 # Add them to PATH.
