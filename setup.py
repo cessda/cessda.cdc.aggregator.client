@@ -22,15 +22,15 @@ with open('VERSION', 'r') as file_obj:
 
 
 requires = [
-    'kuha_common>=2.2.0',
-    'kuha_client>=1.2.1',
-    'cdcagg_common>=0.6.0'
+    'kuha_common>=2.4.0',
+    'kuha_client>=1.4.0',
+    'cdcagg_common>=0.7.0'
 ]
 
 
 setup(name='cdcagg_client',
       version=version,
-      url='https://bitbucket.org/cessda/cessda.cdc.aggregator.oai-pmh-repo-handler',
+      url='https://github.com/cessda/cessda.cdc.aggregator.client',
       description='',
       license='EUPL v1.2',
       author='Toni Sissala',

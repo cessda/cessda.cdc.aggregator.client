@@ -16,7 +16,7 @@
 Command line client for synchronizing records to CESSDA Metadata Aggregator
 DocStore. This program is part of CESSDA Metadata Aggregator.
 
-Source code is hosted at Bitbucket [https://bitbucket.org/cessda/cessda.cdc.aggregator.client](https://bitbucket.org/cessda/cessda.cdc.aggregator.client).
+Source code is hosted at Github [https://github.com/cessda/cessda.cdc.aggregator.client](https://github.com/cessda/cessda.cdc.aggregator.client).
 
 
 ## Features ##
@@ -42,13 +42,13 @@ On Ubuntu 20.04
 Clone the repository using Git.
 
 ```sh
-git clone https://bitbucket.org/cessda/cessda.cdc.aggregator.client.git
+git clone https://github.com/cessda/cessda.cdc.aggregator.client
 ```
 
 Or fetch a specific release using a tag. For example to get 0.2.0 release.
 
 ```sh
-git clone --branch 0.2.0 https://bitbucket.org/cessda/cessda.cdc.aggregator.client.git
+git clone --branch 0.2.0 https://github.com/cessda/cessda.cdc.aggregator.client
 ```
 
 
