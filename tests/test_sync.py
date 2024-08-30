@@ -13,9 +13,8 @@
 
 import os.path
 import tempfile
-from unittest import mock
+from unittest import mock, IsolatedAsyncioTestCase, TestCase
 from argparse import Namespace
-from kuha_common.testing.testcases import KuhaUnitTestCase
 from kuha_common.document_store.constants import (
     REC_STATUS_CREATED,
     REC_STATUS_DELETED,
@@ -45,12 +44,28 @@ def settings(paths, no_remove=False, file_cache='', **kw):
                      fail_on_parse=kw.get('fail_on_parse', False))
 
 
-class TestConfigure(KuhaUnitTestCase):
+class _Base(TestCase):
+    def setUp(self):
+        self._resets = []
+        super().setUp()
+
+    def tearDown(self):
+        for _reset in self._resets:
+            _reset()
+        super().tearDown()
+
+    def _init_patcher(self, patcher):
+        _mock = patcher.start()
+        self._resets.append(patcher.stop)
+        return _mock
+
+
+class TestConfigure(_Base):
 
     def setUp(self):
         super().setUp()
-        self._mock_conf = self.init_patcher(mock.patch.object(sync, 'conf'))
-        self._mock_setup_common_modules = self.init_patcher(mock.patch.object(
+        self._mock_conf = self._init_patcher(mock.patch.object(sync, 'conf'))
+        self._mock_setup_common_modules = self._init_patcher(mock.patch.object(
             sync.cli_setup, 'setup_common_modules'))
 
     def test_calls_conf_load(self):
@@ -94,28 +109,27 @@ class TestConfigure(KuhaUnitTestCase):
         self.assertEqual(rval, self._mock_setup_common_modules.return_value)
 
 
-class TestStudyMethods(KuhaUnitTestCase):
+class TestStudyMethods(IsolatedAsyncioTestCase):
 
     maxDiff = None
 
     def setUp(self):
-        super().setUp()
         self.studymeths = sync.StudyMethods(mock.Mock())
+        super().setUp()
 
     @mock.patch.object(sync.kuha_client, 'send_update_record_request')
-    def test_update_record_with_matching_records(self, mock_send):
+    async def test_update_record_with_matching_records(self, mock_send):
         """If records match and old record is not deleted, do nothing."""
         old = Study()
         new = Study(old.export_dict())
         # Call
-        self.run_until_complete(self.await_and_store_result(
-            self.studymeths.update_record(new, old)))
+        result = await self.studymeths.update_record(new, old)
         # assert
         mock_send.assert_not_called()
-        self.assertEqual(self._stored_result, False)
+        self.assertEqual(result, False)
 
     @mock.patch.object(sync.kuha_client, 'send_update_record_request')
-    def test_update_record_with_differing_records(self, mock_send):
+    async def test_update_record_with_differing_records(self, mock_send):
         """If records don't match, send the new one to docstore."""
         old = Study()
         old.add_study_number('study_1')
@@ -126,16 +140,15 @@ class TestStudyMethods(KuhaUnitTestCase):
         new.add_abstract('another abstract', 'en')
         new._provenance.add_value('some harvestdate')
         # Call
-        self.run_until_complete(self.await_and_store_result(
-            self.studymeths.update_record(new, old)))
+        result = await self.studymeths.update_record(new, old)
         # Assert
         new_rec_dict = new.export_dict(include_metadata=False, include_id=False)
         new_rec_dict[Study._aggregator_identifier.path] = old._aggregator_identifier.get_value()
         mock_send.assert_called_once_with(new.collection, new_rec_dict, 'some-id')
-        self.assertEqual(self._stored_result, True)
+        self.assertEqual(result, True)
 
     @mock.patch.object(sync.kuha_client, 'send_update_record_request')
-    def test_update_record_matching_records_old_record_is_deleted(self, mock_send):
+    async def test_update_record_matching_records_old_record_is_deleted(self, mock_send):
         """If records match, but older is deleted, change the metadata accordingly and send to docstore"""
         old = Study()
         old.add_study_number('study_1')
@@ -149,14 +162,13 @@ class TestStudyMethods(KuhaUnitTestCase):
         exp_dict['_metadata']['status'] = REC_STATUS_CREATED
         exp_dict['_metadata']['deleted'] = None
         # Call
-        self.run_until_complete(self.await_and_store_result(
-            self.studymeths.update_record(new, old)))
+        result = await self.studymeths.update_record(new, old)
         # Assert
         mock_send.assert_called_once_with(new.collection, exp_dict, 'some-id')
-        self.assertEqual(self._stored_result, True)
+        self.assertEqual(result, True)
 
     @mock.patch.object(sync.kuha_client, 'send_update_record_request')
-    def test_update_record_keeps_old_aggregator_identifier(self, mock_send):
+    async def test_update_record_keeps_old_aggregator_identifier(self, mock_send):
         """Updating an old record must not change the old record's _aggregator_identifier.
 
         Tests fix for #19 at bitbucket.
@@ -171,8 +183,7 @@ class TestStudyMethods(KuhaUnitTestCase):
                             new._aggregator_identifier.get_value())
         exp_rec_dict = new.export_dict(include_metadata=False, include_id=False)
         exp_rec_dict[Study._aggregator_identifier.path] = old._aggregator_identifier.get_value()
-        self.run_until_complete(self.await_and_store_result(
-            self.studymeths.update_record(new, old)))
+        await self.studymeths.update_record(new, old)
         calls = mock_send.call_args_list
         self.assertEqual(len(calls), 1)
         cargs, ckwargs = calls[0]
@@ -183,7 +194,7 @@ class TestStudyMethods(KuhaUnitTestCase):
         mock_send.assert_called_once_with(new.collection, exp_rec_dict, old.get_id())
 
 
-class TestCli(KuhaUnitTestCase):
+class TestCli(TestCase):
 
     @mock.patch.object(sync, 'run')
     @mock.patch.object(sync, 'configure', return_value=settings([]))
@@ -245,19 +256,19 @@ class TestCli(KuhaUnitTestCase):
         mock_BatchProcessor.return_value.upsert_run.assert_called_once_with(['/some/path'], remove_absent=False)
 
 
-class TestIntegration(KuhaUnitTestCase):
+class TestIntegration(_Base):
     """Test from cli to http requests"""
 
     def setUp(self):
         super().setUp()
-        self._mock_query_single = self.init_patcher(mock.patch.object(sync.QueryController, 'query_single'))
-        self._mock_query_distinct = self.init_patcher(mock.patch.object(sync.QueryController, 'query_distinct'))
-        self._mock_send_delete_record_request = self.init_patcher(
+        self._mock_query_single = self._init_patcher(mock.patch.object(sync.QueryController, 'query_single'))
+        self._mock_query_distinct = self._init_patcher(mock.patch.object(sync.QueryController, 'query_distinct'))
+        self._mock_send_delete_record_request = self._init_patcher(
             mock.patch.object(sync.kuha_client, 'send_delete_record_request'))
-        self._mock_send_update_record_request = self.init_patcher(
+        self._mock_send_update_record_request = self._init_patcher(
             mock.patch.object(sync.kuha_client, 'send_update_record_request'))
-        self._mock_send_create_record_request = self.init_patcher(mock.patch('kuha_client.send_create_record_request'))
-        self._mock_configure = self.init_patcher(mock.patch.object(sync, 'configure'))
+        self._mock_send_create_record_request = self._init_patcher(mock.patch('kuha_client.send_create_record_request'))
+        self._mock_configure = self._init_patcher(mock.patch.object(sync, 'configure'))
 
     def test_minimal_ddi122_calls_query_single_correctly(self):
         self._mock_query_single.return_value = None

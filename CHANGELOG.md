@@ -5,6 +5,32 @@ All notable changes to the CDC Aggregator Client will be documented in this file
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## 0.9.0 - 2024-08-30
+
+### Added
+
+- Support Python 3.11 & 3.12.
+- New test environment for tox 'warnings-as-errors' to treat warnings
+  as errors in tests. Run this environment in CI with latest python.
+
+### Changed
+
+- Require Aggregator Shared Library 0.8.1 in requirements.txt.
+- Require Kuha Common 2.5.0 in requirements.txt.
+- Require Kuha Client 1.5.0 in requirements.txt.
+- Require Py12fLogging 0.7.0 in requirements.txt.
+- Require Tornado 6.4.1 in requirements.txt.
+- Require ConfigArgParse 1.7 in requirements.txt.
+
+### Fixed
+
+- Fix random `ResourceWarning: unclosed event loop` when running
+  tests. KuhaUnitTestCase does not properly close the event
+  loop on tearDown. Migrate away from KuhaUnitTestCase and use
+  unittest.IsolatedAsyncioTestCase when running coroutines is
+  required.
+
+
 ## 0.8.0 - 2024-04-30
 
 ### Added
