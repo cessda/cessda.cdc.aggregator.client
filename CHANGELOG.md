@@ -5,6 +5,33 @@ All notable changes to the CDC Aggregator Client will be documented in this file
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## 0.10.0 - 2025-01-17
+
+**Note:** After upgrade the file-cache should be removed to make sure
+all files are re-read and saved to Document Store.
+
+### Added
+
+- Support more DDI-C elements. (Implements
+  [#39](https://github.com/cessda/cessda.cdc.aggregator.client/issues/39))
+
+  - Map DDI-C `/codeBook/stdyDscr/citation/distStmt/distDate` to
+    `Study.distribution_dates`.
+  - Map DDI-C `/codeBook/stdyDscr/method/dataColl/resInstru` to
+    `Study.research_instruments`.
+  - Map DDI-C `/codeBook/stdyDscr/dataAccs/useStmt/conditions/@elementVersion`
+    to `Study.data_access_descriptions.attr_element_version`.
+  - Map DDI-C `/codeBook/stdyDscr/stdyInfo/sumDscr/collDate` CDATA
+    to `Study.collection_periods.attr_description`.
+
+### Changed
+
+- Require Aggregator Shared Library 0.9.0 in requirements.txt.
+- Require Kuha Common 2.6.0 in requirements.txt.
+- Require Kuha Client 1.6.0 in requirements.txt.
+- Require Tornado 6.4.2 in requirements.txt.
+
+
 ## 0.9.0 - 2024-08-30
 
 ### Added
