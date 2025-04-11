@@ -5,6 +5,44 @@ All notable changes to the CDC Aggregator Client will be documented in this file
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## 0.11.0 - unreleased
+
+### Added
+
+- Support reading DDI 3.2 XML metadata from OAI-PMH
+  envelope. (Implements
+  [#41](https://github.com/cessda/cessda.cdc.aggregator.client/issues/41))
+
+### Changed
+
+- DDI 3.3 mapping now removes whitespaces and surrounding line breaks from values that get read into following attributes:
+  - Study.data_access
+  - Study.data_access_descriptions
+  - Study.citation_requirements
+  - Study.deposit_requirements
+- DDI 3.3 mapping now uses XPATH
+  `/ddi:DDIInstance/s:StudyUnit/r:UserID` with
+  `@typeOfUserID="StudyNumber"`as a primary source for
+  Study.identifiers. If this is found, all other XPATH sources are
+  skipped. If this is not found, the old behaviour applies. (Implements
+  [#42](https://github.com/cessda/cessda.cdc.aggregator.client/issues/42))
+- DDI 3.3 mapping now uses XPATH
+  `/ddi:DDIInstance/s:StudyUnit/a:Archive/a:ArchiveSpecific/a:Item/a:Access/r:Description/r:Content`
+  as a primary source to map to Study.data_access. If the primary is
+  found, all other XPATH sources are skipped. If the primary is not found,
+  the old behaviour applies. (Implements
+  [#43](https://github.com/cessda/cessda.cdc.aggregator.client/issues/43))
+- DDI 3.3 mapping now uses
+  `/ddi:DDIInstance/s:StudyUnit/a:Archive/a:ArchiveSpecific/a:Item/a:Access/a:TypeOfAccess`
+  and its `@controlledVocabularyName` for primary XPATH source for
+  Study.data_access_descriptions. If this is found, all other XPATH
+  sources are skipped. If this is not found, the old behaviour
+  applies. (Implements
+  [#44](https://github.com/cessda/cessda.cdc.aggregator.client/issues/44))
+- Require Aggregator Shared Library 0.10.0 in requirements.txt & setup.py.
+- Require Kuha Common 2.7.0 in requirements.txt & setup.py.
+
+
 ## 0.10.0 - 2025-01-17
 
 **Note:** After upgrade the file-cache should be removed to make sure

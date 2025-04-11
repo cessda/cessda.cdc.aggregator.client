@@ -21,9 +21,10 @@ Source code is hosted at Github [https://github.com/cessda/cessda.cdc.aggregator
 
 ## Features ##
 
-  - Synchronize a folder of XML files recursively to DocStore.
+  - Synchronize a folder of OAI-PMH XML files recursively to DocStore.
   - Keep a file-cache to speed-up consecutive syncronization runs.
-  - Supports DDI 1.2.2, DDI 2.5, DDI 3.1 and DDI3.3 XML files.
+  - Supports DDI 1.2.2, DDI 2.5, DDI 3.1, DDI 3.2 and DDI 3.3 XML
+    metadata inside OAI-PMH envelope.
 
 
 ## Requirements ##
