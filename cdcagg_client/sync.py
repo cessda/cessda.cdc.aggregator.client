@@ -38,6 +38,7 @@ from cdcagg_common.mappings import (
     DDI122NesstarRecordParser,
     DDI25RecordParser,
     DDI31RecordParser,
+    DDI32RecordParser,
     DDI33RecordParser
 )
 
@@ -177,7 +178,7 @@ def run(settings):
     """
     remove_absent = settings.no_remove is False
     parsers = [DDI122NesstarRecordParser, DDI25RecordParser,
-               DDI31RecordParser, DDI33RecordParser]
+               DDI31RecordParser, DDI32RecordParser, DDI33RecordParser]
     collections_methods = [StudyMethods]
     if settings.file_cache:
         with kuha_client.open_file_logging_cache(settings.file_cache) as cache:

@@ -232,6 +232,7 @@ class TestCli(TestCase):
                                                     parsers=[sync.DDI122NesstarRecordParser,
                                                              sync.DDI25RecordParser,
                                                              sync.DDI31RecordParser,
+                                                             sync.DDI32RecordParser,
                                                              sync.DDI33RecordParser],
                                                     fail_on_parse=False)
         mock_BatchProcessor.return_value.upsert_run.assert_called_once_with(['/some/path'], remove_absent=True)
@@ -250,6 +251,7 @@ class TestCli(TestCase):
                                                     parsers=[sync.DDI122NesstarRecordParser,
                                                              sync.DDI25RecordParser,
                                                              sync.DDI31RecordParser,
+                                                             sync.DDI32RecordParser,
                                                              sync.DDI33RecordParser],
                                                     cache=mock_FileLoggingCache.return_value,
                                                     fail_on_parse=True)
@@ -378,6 +380,38 @@ class TestIntegration(_Base):
             # ASSERT
             self._mock_send_update_record_request.assert_not_called()
             self._mock_query_single.assert_not_called()
+
+    def test_minimal_ddi32_creates(self):
+        self._mock_query_single.return_value = None
+        self._mock_configure.return_value = settings([_testdata_path('minimal_ddi32.xml')])
+        # Call
+        sync.cli()
+        # Assert
+        self._mock_send_delete_record_request.assert_not_called()
+        self._mock_send_update_record_request.assert_not_called()
+        calls = self._mock_send_create_record_request.call_args_list
+        self.assertEqual(len(calls), 1)
+        cargs, ckwargs = calls.pop()
+        self.assertEqual(ckwargs, {})
+        self.assertEqual(len(cargs), 2)
+        coll, rec_dict = cargs
+        self.assertEqual(coll, Study.get_collection())
+        self.assertEqual(rec_dict['study_number'], 'http3A2F2Fservices.fsd.tuni.fi2Fv02Foai__oai3Afsd.uta.fi3Astudy_1')
+        self.assertEqual(rec_dict['identifiers'][0]['identifier'], 'study 1')
+        exp_titles = {"fi": "aineiston otsikko",
+                      "en": "study title"}
+        for title in rec_dict["study_titles"]:
+            self.assertIn(title['language'], exp_titles)
+            exp_title = exp_titles.pop(title['language'])
+            self.assertEqual(exp_title, title['study_title'])
+        self.assertEqual(exp_titles, {})
+        exp_abstracts = {"fi": "Tiivistelmä suomeksi",
+                         "en": "Abstract in english"}
+        for abstract in rec_dict["abstracts"]:
+            self.assertIn(abstract['language'], exp_abstracts)
+            exp_abstract = exp_abstracts.pop(abstract['language'])
+            self.assertEqual(exp_abstract, abstract['abstract'])
+        self.assertEqual(exp_abstracts, {})
 
     def test_batch_with_unsupported_ddi_does_not_raise(self):
         """Test against #11 at Bitbucket"""

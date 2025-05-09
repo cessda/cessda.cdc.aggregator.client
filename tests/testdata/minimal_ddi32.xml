@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OAI-PMH xmlns="http://www.openarchives.org/OAI/2.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd">
+  <responseDate>2021-03-18T08:07:43Z</responseDate>
+  <request metadataPrefix="ddi_32" identifier="oai:fsd.uta.fi:study_1" verb="GetRecord">http://services.fsd.tuni.fi/v0/oai</request>
+  <GetRecord>
+    <record>
+      <header>
+        <identifier>oai:fsd.uta.fi:study_1</identifier>
+        <datestamp>2020-07-15T23:00:29Z</datestamp>
+        <setSpec>language:fi</setSpec><setSpec>language:en</setSpec><setSpec>data_kind:Quantitative</setSpec><setSpec>data_kind:Kvantitatiivinen</setSpec><setSpec>study_groups:issp</setSpec>
+      </header>
+      <metadata>
+        <ddi:DDIInstance xmlns:ddi="ddi:instance:3_2"
+                     xmlns:s="ddi:studyunit:3_2"
+                     xmlns:pd="ddi:physicaldataproduct:3_2"
+                     xmlns:pi="ddi:physicalinstance:3_2"
+                     xmlns:c="ddi:conceptualcomponent:3_2"
+                     xmlns:l="ddi:logicalproduct:3_2"
+                     xmlns:r="ddi:reusable:3_2"
+                     xmlns:dc="ddi:datacollection:3_2"
+                     xmlns:a="ddi:archive:3_2"
+                     xmlns:g="ddi:group:3_2"
+                     xmlns:xhtml="http://www.w3.org/1999/xhtml"
+                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                     xsi:schemaLocation="ddi:instance:3_2 http://www.ddialliance.org/Specification/DDI-Lifecycle/3.2/XMLSchema/instance.xsd">
+          <r:URN>urn:ddi:some.example:ddi_metadata:1</r:URN>
+          <s:StudyUnit xml:lang="fi">
+            <r:URN>urn:ddi:some.example:study:1</r:URN>
+            <r:UserID typeOfUserID="StudyNumber">study 1</r:UserID>
+            <r:Citation>
+              <r:Title>
+                <r:String xml:lang="fi">aineiston otsikko</r:String>
+                <r:String xml:lang="en">study title</r:String>
+              </r:Title>
+            </r:Citation>
+            <r:Abstract>
+              <r:Content xml:lang="en">Abstract in english</r:Content>
+              <r:Content xml:lang="fi">Tiivistelmä suomeksi</r:Content>
+            </r:Abstract>
+          </s:StudyUnit>
+        </ddi:DDIInstance>
+      </metadata>
+    </record>
+  </GetRecord>
+</OAI-PMH>
