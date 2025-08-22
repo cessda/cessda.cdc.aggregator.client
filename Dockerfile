@@ -47,13 +47,13 @@
 #
 # $ docker run \
 #     --name "cdcagg_client" \
-#     --mount source=xml_sources,destination=/xml_sources,readonly \
-#     --mount source=app_data,destination=/app_data \
+#     --mount type=bind,source=./xml_sources,destination=/xml_sources,readonly \
+#     --mount type=bind,source=./app_data,destination=/app_data \
 #     -e "CDCAGG_DS_URL=http://153.1.61.18:5001/v0" \
 #     cdcagg-client
 #
 
-FROM python:3.9-slim as builder
+FROM python:3.12-slim AS builder
 
 COPY . /docker-build
 WORKDIR /docker-build
@@ -73,7 +73,7 @@ RUN --mount=type=secret,id=bbcreds \
 # END FIRST STAGE
 
 
-FROM python:3.9-slim as prod
+FROM python:3.12-slim AS prod
 
 # Copy build packages from builder image to prod.
 # Add them to PATH.
