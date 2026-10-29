@@ -265,6 +265,7 @@ class TestIntegration(_Base):
         super().setUp()
         self._mock_query_single = self._init_patcher(mock.patch.object(sync.QueryController, 'query_single'))
         self._mock_query_distinct = self._init_patcher(mock.patch.object(sync.QueryController, 'query_distinct'))
+        self._mock_query_count = self._init_patcher(mock.patch('kuha_client.QueryController.query_count'))
         self._mock_send_delete_record_request = self._init_patcher(
             mock.patch.object(sync.kuha_client, 'send_delete_record_request'))
         self._mock_send_update_record_request = self._init_patcher(
@@ -273,6 +274,7 @@ class TestIntegration(_Base):
         self._mock_configure = self._init_patcher(mock.patch.object(sync, 'configure'))
 
     def test_minimal_ddi122_calls_query_single_correctly(self):
+        self._mock_query_count.return_value = 0
         self._mock_query_single.return_value = None
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml')])
         # Call
@@ -286,6 +288,7 @@ class TestIntegration(_Base):
                         Study._provenance.attr_identifier: 'oai:fsd.uta.fi:FSD0115'}}})
 
     def test_minimal_ddi122_creates(self):
+        self._mock_query_count.return_value = 0
         self._mock_query_single.return_value = None
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml')])
         # Call
@@ -304,6 +307,7 @@ class TestIntegration(_Base):
         self.assertEqual(rec_dict['study_titles'][0]['study_title'], 'some study')
 
     def test_minimal_ddi122_updates(self):
+        self._mock_query_count.return_value = 0
         self._mock_query_single.return_value = Study({'study_number': 'study_1',
                                                       'study_titles': [
                                                           {'study_title': 'old title',
@@ -327,18 +331,26 @@ class TestIntegration(_Base):
         self.assertEqual(rec_id, 'some_id')
 
     def test_minimal_ddi122_calls_query_distinct_correctly(self):
+        self._mock_query_count.return_value = 0
         self._mock_query_single.return_value = None
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml')])
         sync.cli()
-        self._mock_query_distinct.assert_called_once_with(
-            Study, fieldname=Study._id, _filter={
-                Study._metadata.attr_status: {MDB_NOT_EQUAL: REC_STATUS_DELETED}
-            }
-        )
+        self.assertEqual(self._mock_query_distinct.call_count, 2)
+        calls = self._mock_query_distinct.call_args_list
+        exp_calls = [
+            ((Study,), {'fieldname': Study._metadata.attr_schema_version}),
+            ((Study,), {'fieldname': Study._id, '_filter': {Study._metadata.attr_status: REC_STATUS_CREATED}})
+        ]
+        for index, exp_call in enumerate(exp_calls):
+            self.assertEqual(calls[index], exp_call)
 
     def test_minimal_ddi122_deletes(self):
+        self._mock_query_count.return_value = 0
         self._mock_query_single.return_value = None
-        self._mock_query_distinct.return_value = {'_id': ['delete_me_1', 'delete_me_2']}
+        self._mock_query_distinct.side_effect = [
+            {'_metadata.schema_version': [Study.schema_version]},
+            {'_id': ['delete_me_1', 'delete_me_2']}
+        ]
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml')])
         sync.cli()
         self._mock_send_delete_record_request.assert_has_calls([
@@ -349,6 +361,13 @@ class TestIntegration(_Base):
     def test_minimal_ddi122_with_file_log_calls_send_update_request_correctly(self):
         """First call with nonexistent file cache will call docstore normally. Second call
         with a up-to-date filelog will not consult document store at all."""
+        self._mock_query_count.return_value = 0
+        self._mock_query_distinct.side_effect = [
+            {'_metadata.schema_version': [Study.schema_version]},
+            {'_id': []},
+            {'_metadata.schema_version': [Study.schema_version]},
+            {'_id': []}
+        ]
         self._mock_query_single.return_value = Study({'study_number': 'study_1',
                                                       '_id': 'some_id'})
         with tempfile.TemporaryDirectory() as dirname:
@@ -382,6 +401,7 @@ class TestIntegration(_Base):
             self._mock_query_single.assert_not_called()
 
     def test_minimal_ddi32_creates(self):
+        self._mock_query_count.return_value = 0
         self._mock_query_single.return_value = None
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi32.xml')])
         # Call
@@ -415,6 +435,7 @@ class TestIntegration(_Base):
 
     def test_batch_with_unsupported_ddi_does_not_raise(self):
         """Test against #11 at Bitbucket"""
+        self._mock_query_count.return_value = 0
         self._mock_query_single.return_value = None
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml'),
                                                       _testdata_path('unsupported_ddi33.xml')])
@@ -423,6 +444,7 @@ class TestIntegration(_Base):
 
     def test_batch_with_unsupported_ddi_creates(self):
         """Test against #11 at Bitbucket"""
+        self._mock_query_count.return_value = 0
         self._mock_query_single.return_value = None
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml'),
                                                       _testdata_path('unsupported_ddi33.xml')])
@@ -440,6 +462,7 @@ class TestIntegration(_Base):
     @mock.patch.object(sync.kuha_client._logger, 'exception')
     def test_batch_with_unsupported_ddi_logs_exception(self, mock_exception):
         """Test against #11 at Bitbucket"""
+        self._mock_query_count.return_value = 0
         self._mock_query_single.return_value = None
         inv_path = _testdata_path('unsupported_ddi33.xml')
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml'), inv_path])
@@ -448,6 +471,7 @@ class TestIntegration(_Base):
 
     def test_aggregator_identifier_is_sha256(self):
         """Test against #20 at Bitbucket"""
+        self._mock_query_count.return_value = 0
         self._mock_query_single.return_value = None
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml')])
         # Call
@@ -476,6 +500,7 @@ class TestIntegration(_Base):
 
         See https://github.com/cessda/cessda.cdc.aggregator.client/issues/27
         """
+        self._mock_query_count.return_value = 0
         self._mock_query_single.return_value = None
         self._mock_configure.return_value = settings([_testdata_path('no_relpubl_citation_titl_ddi25.xml')])
         # Call

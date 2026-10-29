@@ -6,8 +6,8 @@ py12flogging==0.7.0
 # Direct
 
 # CDCAGG common
-git+https://github.com/cessda/cessda.cdc.aggregator.shared-library@0.10.0#egg=cdcagg_common
+git+https://github.com/cessda/cessda.cdc.aggregator.shared-library@57-support-schema-version-changes#egg=cdcagg_common
 # Kuha Common
-git+https://gitlab.tuni.fi/fsd/kuha_common@2.7.0#egg=kuha_common
+git+https://gitlab.tuni.fi/fsd/kuha_common@ae743715d90c18768205d3e302645a774506659a#egg=kuha_common
 # Kuha Client
-git+https://gitlab.tuni.fi/fsd/kuha_client@1.6.0#egg=kuha_client
+git+https://gitlab.tuni.fi/fsd/kuha_client@a4eff7d3f22a7ef072aee39039de30922a283a3d#egg=kuha_client

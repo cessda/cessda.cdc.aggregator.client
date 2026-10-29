@@ -33,6 +33,7 @@ from kuha_common import (
 )
 from kuha_common.document_store.constants import REC_STATUS_DELETED
 import kuha_client
+from cdcagg_common import record_by_collection_name
 from cdcagg_common.records import Study
 from cdcagg_common.mappings import (
     DDI122NesstarRecordParser,
@@ -55,6 +56,10 @@ class StudyMethods(kuha_client.CollectionMethods):
     """
 
     collection = Study.get_collection()
+
+    @staticmethod
+    def _record_by_collection(collection):
+        return record_by_collection_name(collection)
 
     async def query_record(self, record):
         """Query record from Document Store.
@@ -90,18 +95,6 @@ class StudyMethods(kuha_client.CollectionMethods):
             if rec:
                 break
         return rec
-
-    async def query_distinct_ids(self):
-        """Query distinct IDs from collection that are not deleted.
-
-        :returns: Distinct ids
-        :rtype: set
-        """
-        ids = await QueryController().query_distinct(
-            Study, fieldname=Study._id,
-            _filter={Study._metadata.attr_status:
-                     {QueryController.fk_constants.not_equal: REC_STATUS_DELETED}})
-        return set(ids[Study._id.path])
 
     async def update_record(self, new, old):
         """Update existing Document Store record.
