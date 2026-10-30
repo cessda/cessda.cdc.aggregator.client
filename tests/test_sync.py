@@ -200,8 +200,9 @@ class TestStudyMethods(IsolatedAsyncioTestCase):
         self.assertEqual(carg_dict, exp_rec_dict)
         mock_send.assert_called_once_with(new.collection, exp_rec_dict, old.get_id())
 
+    @mock.patch('kuha_common.document_store.records.warnings.warn')
     @mock.patch.object(sync.kuha_client, 'send_update_record_request')
-    async def test_update_record_updates_schema_version_for_old_deleted_record(self, mock_send):
+    async def test_update_record_updates_schema_version_for_old_deleted_record(self, mock_send, mock_warn):
         old = Study()
         old.add_study_number('study_1')
         old.add_abstract('some abstract', 'en')
@@ -220,8 +221,9 @@ class TestStudyMethods(IsolatedAsyncioTestCase):
         await self.studymeths.update_record(new, old)
         mock_send.assert_called_once_with(Study.collection, exp_rec_dict, 'some-id')
 
+    @mock.patch('kuha_common.document_store.records.warnings.warn')
     @mock.patch.object(sync.kuha_client, 'send_update_record_request')
-    async def test_update_record_updates_schema_for_old_record(self, mock_send):
+    async def test_update_record_updates_schema_for_old_record(self, mock_send, mock_warn):
         old = Study()
         old.set_created('2000-01-01T00:00:00Z')
         old.set_id('some-id')
