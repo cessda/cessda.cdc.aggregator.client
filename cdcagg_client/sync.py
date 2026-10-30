@@ -125,14 +125,9 @@ class StudyMethods(kuha_client.CollectionMethods):
                                                                          include_metadata=True,
                                                                          include_id=False),
                                                          old.get_id())
-        elif await self._update_metadata_if_deleted(old) is True:
-            # Records match, but old record is deleted. Update metadata to docstore.
-            await kuha_client.send_update_record_request(new.get_collection(),
-                                                         old.export_dict(include_provenance=True,
-                                                                         include_metadata=True,
-                                                                         include_id=False),
-                                                         old.get_id())
-        elif has_migrated_schema:
+        elif await self._update_metadata_if_deleted(old) is True or has_migrated_schema:
+            # Records match, but old record is deleted or schema has been migrated.
+            # Update metadata to docstore.
             await kuha_client.send_update_record_request(new.get_collection(),
                                                          old.export_dict(include_provenance=True,
                                                                          include_metadata=True,
