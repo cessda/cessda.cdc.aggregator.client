@@ -31,8 +31,8 @@ from kuha_common import (
     conf,
     cli_setup
 )
-from kuha_common.document_store.constants import REC_STATUS_DELETED
 import kuha_client
+from cdcagg_common import record_by_collection_name
 from cdcagg_common.records import Study
 from cdcagg_common.mappings import (
     DDI122NesstarRecordParser,
@@ -55,6 +55,10 @@ class StudyMethods(kuha_client.CollectionMethods):
     """
 
     collection = Study.get_collection()
+
+    @staticmethod
+    def _record_by_collection(collection):
+        return record_by_collection_name(collection)
 
     async def query_record(self, record):
         """Query record from Document Store.
@@ -91,18 +95,6 @@ class StudyMethods(kuha_client.CollectionMethods):
                 break
         return rec
 
-    async def query_distinct_ids(self):
-        """Query distinct IDs from collection that are not deleted.
-
-        :returns: Distinct ids
-        :rtype: set
-        """
-        ids = await QueryController().query_distinct(
-            Study, fieldname=Study._id,
-            _filter={Study._metadata.attr_status:
-                     {QueryController.fk_constants.not_equal: REC_STATUS_DELETED}})
-        return set(ids[Study._id.path])
-
     async def update_record(self, new, old):
         """Update existing Document Store record.
 
@@ -116,21 +108,26 @@ class StudyMethods(kuha_client.CollectionMethods):
         :returns: False if record does not need updating.
         :rtype: bool
         """
+        has_migrated_schema = await self._migrate_schema(old, new)
         new_dict = new.export_dict(include_provenance=False, include_metadata=False, include_id=False)
         old_dict = old.export_dict(include_provenance=False, include_metadata=False, include_id=False)
         if new_dict != old_dict:
             # Records differ. Send new record to docstore
-            new_dict.update(new.export_provenance_dict())
             # Use old aggregator identifier.
             # Disabling pylint protected access -rule for the next row.
             # Attribute _aggregator_identifier is prefixed with a single
             # underscore since it reflects the underlying payload schema.
             # pylint: disable-next=protected-access
-            new_dict.update(old._aggregator_identifier.export_dict())
+            new.set_aggregator_identifier(old._aggregator_identifier.get_value())
+            new.set_created(old.get_created())
             await kuha_client.send_update_record_request(new.get_collection(),
-                                                         new_dict, old.get_id())
-        elif await self._update_metadata_if_deleted(old) is True:
-            # Records match, but old record is deleted. Update metadata to docstore.
+                                                         new.export_dict(include_provenance=True,
+                                                                         include_metadata=True,
+                                                                         include_id=False),
+                                                         old.get_id())
+        elif await self._update_metadata_if_deleted(old) is True or has_migrated_schema:
+            # Records match, but old record is deleted or schema has been migrated.
+            # Update metadata to docstore.
             await kuha_client.send_update_record_request(new.get_collection(),
                                                          old.export_dict(include_provenance=True,
                                                                          include_metadata=True,
