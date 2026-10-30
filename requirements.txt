@@ -1,7 +1,7 @@
 # Indirect
-tornado==6.4.2
-ConfigArgParse==1.7
-py12flogging==0.7.0
+tornado==6.5.2
+ConfigArgParse==1.7.1
+py12flogging==0.8.0
 
 # Direct
 
