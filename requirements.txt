@@ -10,4 +10,4 @@ git+https://github.com/cessda/cessda.cdc.aggregator.shared-library@57-support-sc
 # Kuha Common
 git+https://gitlab.tuni.fi/fsd/kuha_common@ae743715d90c18768205d3e302645a774506659a#egg=kuha_common
 # Kuha Client
-git+https://gitlab.tuni.fi/fsd/kuha_client@a4eff7d3f22a7ef072aee39039de30922a283a3d#egg=kuha_client
+git+https://gitlab.tuni.fi/fsd/kuha_client@3e18aefe8e53a0ce32ce9824241a4d0165af2546#egg=kuha_client
