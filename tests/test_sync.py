@@ -15,6 +15,7 @@ import os.path
 import tempfile
 from unittest import mock, IsolatedAsyncioTestCase, TestCase
 from argparse import Namespace
+from kuha_common.document_store.records import get_schema_version_components
 from kuha_common.document_store.constants import (
     REC_STATUS_CREATED,
     REC_STATUS_DELETED,
@@ -135,14 +136,16 @@ class TestStudyMethods(IsolatedAsyncioTestCase):
         old.add_study_number('study_1')
         old.add_abstract('some abstract', 'en')
         old._id.set_value('some-id')
+        old.set_aggregator_identifier('old-id')
         new = Study()
         new.add_study_number('study_1')
         new.add_abstract('another abstract', 'en')
         new._provenance.add_value('some harvestdate')
+        new.set_aggregator_identifier('new-id')
         # Call
         result = await self.studymeths.update_record(new, old)
         # Assert
-        new_rec_dict = new.export_dict(include_metadata=False, include_id=False)
+        new_rec_dict = new.export_dict(include_metadata=True, include_id=False)
         new_rec_dict[Study._aggregator_identifier.path] = old._aggregator_identifier.get_value()
         mock_send.assert_called_once_with(new.collection, new_rec_dict, 'some-id')
         self.assertEqual(result, True)
@@ -168,7 +171,7 @@ class TestStudyMethods(IsolatedAsyncioTestCase):
         self.assertEqual(result, True)
 
     @mock.patch.object(sync.kuha_client, 'send_update_record_request')
-    async def test_update_record_keeps_old_aggregator_identifier(self, mock_send):
+    async def test_update_record_keeps_old_aggregator_identifier_and_created_date(self, mock_send):
         """Updating an old record must not change the old record's _aggregator_identifier.
 
         Tests fix for #19 at bitbucket.
@@ -176,13 +179,17 @@ class TestStudyMethods(IsolatedAsyncioTestCase):
         old = Study()
         old.add_study_number('study_1')
         old.add_abstract('some abstract', 'en')
+        old.set_aggregator_identifier('old_id')
+        old.set_created('2000-01-01T00:00:00Z')
         new = Study()
         new.add_study_number('study_1')
         new.add_abstract('another abstract', 'en')
-        self.assertNotEqual(old._aggregator_identifier.get_value,
+        new.set_aggregator_identifier('new_id')
+        self.assertNotEqual(old._aggregator_identifier.get_value(),
                             new._aggregator_identifier.get_value())
-        exp_rec_dict = new.export_dict(include_metadata=False, include_id=False)
+        exp_rec_dict = new.export_dict(include_metadata=True, include_id=False)
         exp_rec_dict[Study._aggregator_identifier.path] = old._aggregator_identifier.get_value()
+        exp_rec_dict['_metadata']['created'] = '2000-01-01T00:00:00Z'
         await self.studymeths.update_record(new, old)
         calls = mock_send.call_args_list
         self.assertEqual(len(calls), 1)
@@ -192,6 +199,39 @@ class TestStudyMethods(IsolatedAsyncioTestCase):
         self.assertEqual(carg_coll, 'studies')
         self.assertEqual(carg_dict, exp_rec_dict)
         mock_send.assert_called_once_with(new.collection, exp_rec_dict, old.get_id())
+
+    @mock.patch.object(sync.kuha_client, 'send_update_record_request')
+    async def test_update_record_updates_schema_version_for_old_deleted_record(self, mock_send):
+        old = Study()
+        old.add_study_number('study_1')
+        old.add_abstract('some abstract', 'en')
+        old._id.set_value('some-id')
+        new = Study(old.export_dict())
+        old.set_created('2000-01-01T00:00:00Z')
+        old.set_deleted()
+        old.set_status(REC_STATUS_DELETED)
+        vers_major, vers_minor = get_schema_version_components(Study.schema_version)
+        new_schema_version = f'{vers_major}.{vers_minor + 1}'
+        new.set_schema_version(new_schema_version)
+        exp_rec_dict = old.export_dict(include_provenance=True, include_metadata=True, include_id=False)
+        exp_rec_dict['_metadata']['deleted'] = None
+        exp_rec_dict['_metadata']['status'] = REC_STATUS_CREATED
+        exp_rec_dict['_metadata']['schema_version'] = new_schema_version
+        await self.studymeths.update_record(new, old)
+        mock_send.assert_called_once_with(Study.collection, exp_rec_dict, 'some-id')
+
+    @mock.patch.object(sync.kuha_client, 'send_update_record_request')
+    async def test_update_record_updates_schema_for_old_record(self, mock_send):
+        old = Study()
+        old.set_created('2000-01-01T00:00:00Z')
+        old.set_id('some-id')
+        new = Study()
+        vers_major, vers_minor = get_schema_version_components(Study.schema_version)
+        new.set_schema_version(f'{vers_major}.{vers_minor + 1}')
+        exp_rec_dict = old.export_dict(include_provenance=True, include_metadata=True, include_id=False)
+        exp_rec_dict['_metadata']['schema_version'] = new.get_schema_version()
+        await self.studymeths.update_record(new, old)
+        mock_send.assert_called_once_with(new.collection, exp_rec_dict, 'some-id')
 
 
 class TestCli(TestCase):
@@ -312,7 +352,8 @@ class TestIntegration(_Base):
                                                       'study_titles': [
                                                           {'study_title': 'old title',
                                                            'language': 'en'}],
-                                                      '_id': 'some_id'})
+                                                      '_id': 'some_id',
+                                                      **Study().export_metadata_dict()})
         self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml')])
         # Call
         sync.cli()
@@ -369,7 +410,8 @@ class TestIntegration(_Base):
             {'_id': []}
         ]
         self._mock_query_single.return_value = Study({'study_number': 'study_1',
-                                                      '_id': 'some_id'})
+                                                      '_id': 'some_id',
+                                                      **Study().export_metadata_dict()})
         with tempfile.TemporaryDirectory() as dirname:
             cache_path = os.path.join(dirname, 'filelog')
             self._mock_configure.return_value = settings([_testdata_path('minimal_ddi122.xml')],
