@@ -151,7 +151,10 @@ def configure():
     conf.add('--file-cache', type=str, env_var='FILE_CACHE',
              help='Path to a cache file. Leave unset to not use file caching.')
     conf.add('--no-remove', action='store_true', env_var='NO_REMOVE',
-             help="Don't remove records that were not found in this batch.")
+             help="Don't remove records that were not found in this batch. Such records stay in the "
+             "Document Store as they are. Note that after a schema version change these records cannot "
+             "be re-synced, since their source files are not in the batch: they get the new schema "
+             "version and their new attributes are left empty.")
     conf.add('--fail-on-parse', action='store_true', env_var='FAIL_ON_PARSE',
              help="Stop processing a batch when a file cannot be properly parsed. "
              "Enabling this option makes the synchronization process less fault tolerant. "

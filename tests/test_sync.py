@@ -89,7 +89,10 @@ class TestConfigure(_Base):
             mock.call('--file-cache', type=str, env_var='FILE_CACHE',
                       help='Path to a cache file. Leave unset to not use file caching.'),
             mock.call('--no-remove', action='store_true', env_var='NO_REMOVE',
-                      help="Don't remove records that were not found in this batch."),
+                      help="Don't remove records that were not found in this batch. Such records stay in the "
+                      "Document Store as they are. Note that after a schema version change these records cannot "
+                      "be re-synced, since their source files are not in the batch: they get the new schema "
+                      "version and their new attributes are left empty."),
             mock.call('--fail-on-parse', action='store_true', env_var='FAIL_ON_PARSE',
                       help="Stop processing a batch when a file cannot be properly parsed. "
                       "Enabling this option makes the synchronization process less fault "
@@ -199,6 +202,9 @@ class TestStudyMethods(IsolatedAsyncioTestCase):
         self.assertEqual(carg_coll, 'studies')
         self.assertEqual(carg_dict, exp_rec_dict)
         mock_send.assert_called_once_with(new.collection, exp_rec_dict, old.get_id())
+
+    def test_record_by_collection_returns_study_class(self):
+        self.assertIs(self.studymeths._record_by_collection(Study.get_collection()), Study)
 
     @mock.patch('kuha_common.document_store.records.warnings.warn')
     @mock.patch.object(sync.kuha_client, 'send_update_record_request')
