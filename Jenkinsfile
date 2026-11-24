@@ -52,7 +52,7 @@ node(node_label) {
 
     // Assign parallel tasks
     tasks_1['Prepare Tox, Run With Coverage & Publish Report'] = {
-        docker.image('python:3.11').inside('-u root') {
+        docker.image('python:3.11').inside() {
             stage('Prepare Tox Venv') {
                 if (!fileExists(toxEnvName)) {
                     echo 'Build Python Virtualenv for testing...'
@@ -83,7 +83,7 @@ node(node_label) {
         }
     }
     tasks_1['Prepare Pylint, Run Analysis, Archive & Publish report'] = {
-        docker.image('python:3.11').inside('-u root') {
+        docker.image('python:3.11').inside() {
             stage('Prepare Pylint Venv') {
                 if (!fileExists(pylintEnvName)) {
                     sh """
@@ -112,7 +112,7 @@ node(node_label) {
         }
     }
     tasks_2['Run Tests py312'] = {
-        docker.image('python:3.12').inside('-u root') {
+        docker.image('python:3.12').inside() {
             stage('Prepare Tox Venv') {
                 if (!fileExists(toxEnvName)) {
                     echo 'Build Python Virtualenv for testing...'
@@ -148,7 +148,7 @@ node(node_label) {
         }
     }
     tasks_3['Run Tests py313'] = {
-        docker.image('python:3.13').inside('-u root') {
+        docker.image('python:3.13').inside() {
             stage('Prepare Tox Venv') {
                 if (!fileExists(toxEnvName)) {
                     echo 'Build Python Virtualenv for testing...'
@@ -174,7 +174,7 @@ node(node_label) {
         }
     }
     tasks_4['Run Tests py314'] = {
-        docker.image('python:3.14').inside('-u root') {
+        docker.image('python:3.14').inside() {
             stage('Prepare Tox Venv') {
                 if (!fileExists(toxEnvName)) {
                     echo 'Build Python Virtualenv for testing...'
@@ -200,7 +200,7 @@ node(node_label) {
         }
     }
     tasks_5['Run Tests py315'] = {
-        docker.image('python:3.15').inside('-u root') {
+        docker.image('python:3.15').inside() {
             stage('Prepare Tox Venv') {
                 if (!fileExists(toxEnvName)) {
                     echo 'Build Python Virtualenv for testing...'
