@@ -5,6 +5,28 @@ All notable changes to the CDC Aggregator Client will be documented in this file
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 
+## 0.12.0 - unreleased
+
+### Added
+
+- Invalidate file-cache when client `schema_version` is greater than
+  records `schema_version` in document store. (Implements
+  [#47](https://github.com/cessda/cessda.cdc.aggregator.client/issues/47))
+- Support `schema_version` changes. (Implements
+  [#50](https://github.com/cessda/cessda.cdc.aggregator.client/issues/50))
+
+### Changed
+
+- Maintain support for python stable versions: add support for active
+  Python versions 3.13, 3.14, 3.15, and drop support for EOL versions
+  3.8, 3.9, 3.10. (Implements
+  [#52](https://github.com/cessda/cessda.cdc.aggregator.client/issues/52))
+- Require Kuha Common 3.0.0 in requirements.txt.
+- Require Tornado 6.5.2 in requirements.txt.
+- Require py12flogging 0.8.0 in requirements.txt.
+- Require ConfigArgParse 1.7.1 in requirements.txt.
+
+
 ## 0.11.0 - 2025-05-09
 
 ### Added
